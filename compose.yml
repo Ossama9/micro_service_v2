@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  mariadb:
+    extends:
+      file: ./compose/compose.db.yml
+      service: mariadb
+
+  mongo:
+    extends:
+      file: ./compose/compose.db.yml
+      service: mongo
+
+
+networks:
+  default:
+    external: true
+    name: micro_service_project
