@@ -6,14 +6,13 @@ import {PrismaService} from "./prisma.service";
 import {UserModule} from "./user/user.module";
 import {RefreshTokenService} from './refresh-token/refresh-token.service';
 import {JwtModule, JwtService} from "@nestjs/jwt";
-import Joi from "joi";
 
 
 @Module({
 	imports: [GrpcReflectionModule.register(grpcConfig),
 		JwtModule.register({
 			secret: 'super-secret',
-			signOptions: {expiresIn: '5m'},
+			signOptions: {expiresIn: '2h'},
 		}),
 		UserModule],
 	controllers: [AppController],

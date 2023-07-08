@@ -45,7 +45,6 @@ export interface UpdateRequest {
   name?: string;
   city?: string;
   address?: string;
-  userId?: string;
   status?: STATUS;
 }
 

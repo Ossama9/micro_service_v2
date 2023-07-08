@@ -1,64 +1,72 @@
 import {Controller} from '@nestjs/common';
-import {AppService} from './hotel/hotel.service';
+import {HotelService} from './hotel/hotel.service';
 import {
 	AddRequest,
 	AddResponse,
+	ApproveHotelRequest,
+	ApproveHotelResponse,
 	DeleteRequest,
 	DeleteResponse,
 	GetRequest,
 	GetResponse,
-	HOTEL_CR_UD_SERVICE_NAME,
 	Hotel,
+	HOTEL_CR_UD_SERVICE_NAME,
 	HotelCRUDServiceController,
-	UpdateRequest,
-	UpdateResponse,
 	HotelCRUDServiceControllerMethods,
-	STATUS,
-	PendingHotelResponse,
 	PendingHotelRequest,
-	ApproveHotelRequest,
-	ApproveHotelResponse
+	PendingHotelResponse,
+	STATUS,
+	UpdateRequest,
+	UpdateResponse
 } from './stubs/hotel/v1alpha/hotel';
 import {GrpcMethod, RpcException} from '@nestjs/microservices';
-import {Metadata} from '@grpc/grpc-js';
+import {Metadata, status as RpcStatus} from '@grpc/grpc-js';
 import {CreateHotelDto} from "./dto/create-hotel";
 import {validate, ValidatorOptions} from 'class-validator';
 import {plainToInstance} from "class-transformer";
-import {status as RpcStatus} from '@grpc/grpc-js';
 import {Prisma} from '@prisma/client';
 import {UserService} from "./user/user.service";
+import {User, UserRole} from "./stubs/user/v1alpha/user";
+import {JwtService} from "@nestjs/jwt";
+import { UseGuards } from '@nestjs/common';
+import {GrpcAuthGuard} from "./auth/hotel.guard";
 
 @Controller()
 @HotelCRUDServiceControllerMethods()
 export class AppController implements HotelCRUDServiceController {
 
-	constructor(private readonly appService: AppService, private readonly userService: UserService) {
+	constructor(private readonly hotelService: HotelService,
+				private readonly userService: UserService,
+				private jwtService: JwtService
+	) {
 	}
 
 	async get(request: GetRequest, metadata?: Metadata): Promise<GetResponse> {
 		let hotel: Hotel;
 		let hotels: Hotel[] = [];
 		if (request.id) {
-			const hotel = await this.appService.findById(request.id);
+			const hotel = await this.hotelService.findById(request.id);
 			return {hotels: [hotel] as any};
 		} else {
-			hotels = await this.appService.findAll();
+			hotels = await this.hotelService.findAll();
 			return {hotels: hotels as any};
 		}
 	}
 
+	@UseGuards(GrpcAuthGuard)
 	async pendingHotel(request: PendingHotelRequest, metadata?: Metadata): Promise<PendingHotelResponse> {
 		let hotel: Hotel;
 		let hotels: Hotel[] = [];
 		if (request.id) {
-			const hotel = await this.appService.findById(request.id);
+			const hotel = await this.hotelService.findById(request.id);
 			return {hotels: [hotel]};
 		} else {
-			hotels = await this.appService.pendingHotel();
+			hotels = await this.hotelService.pendingHotel();
 			return {hotels: hotels};
 		}
 	}
 
+	@UseGuards(GrpcAuthGuard)
 	async update(
 		request: UpdateRequest,
 		metadata?: Metadata,
@@ -70,29 +78,35 @@ export class AppController implements HotelCRUDServiceController {
 			...rest,
 			...(convertedStatus && {status: convertedStatus}),
 		};
-
-		const hotel = await this.appService.update(id, cleanedRequest as Prisma.HotelUpdateInput);
+		const hotel = await this.hotelService.update(id, cleanedRequest as Prisma.HotelUpdateInput);
 		return {hotel};
 	}
 
-
+	@UseGuards(GrpcAuthGuard)
 	async delete(
 		request: DeleteRequest,
 		metadata?: Metadata,
 	): Promise<DeleteResponse> {
-		const hotel = await this.appService.delete(request.id);
+		const hotel = await this.hotelService.delete(request.id);
 		return {hotel};
 	}
 
+	@UseGuards(GrpcAuthGuard)
 	async approveHotel(
 		request: ApproveHotelRequest,
 		metadata?: Metadata,
 	): Promise<ApproveHotelResponse> {
+		const jwtToken = metadata.get('authorization').toString().split(' ')[1]
+		const {user, internal}: { user: User; internal: boolean } = this.jwtService.verify(jwtToken);
+
+		if (user.role !== UserRole.ADMIN)
+			throw new RpcException('Forbidden');
+
 		const status = STATUS[1]
 		let hotel
 
 		try {
-			hotel = await this.appService.update(request.id, {status} as any);
+			hotel = await this.hotelService.update(request.id, {status} as any);
 		} catch (e) {
 			throw new RpcException('Hotel does exist');
 		}
@@ -101,7 +115,7 @@ export class AppController implements HotelCRUDServiceController {
 			const user = await this.userService.makeMerchant({
 				id: userId
 			});
-			if (!user){
+			if (!user) {
 				throw new RpcException('Error User does exist');
 			}
 		} catch (e) {
@@ -111,21 +125,25 @@ export class AppController implements HotelCRUDServiceController {
 	}
 
 	@GrpcMethod(HOTEL_CR_UD_SERVICE_NAME)
-	async add(request: AddRequest): Promise<AddResponse> {
+	async add(request: AddRequest, metadata?: Metadata,): Promise<AddResponse> {
 		try {
+			const jwtToken = metadata.get('authorization').toString().split(' ')[1]
 			const dto: CreateHotelDto = await this.validateDto(request, CreateHotelDto);
-			const userId = request.userId
+			const {userId} = request
+			const {user, internal}: { user: User; internal: boolean } = this.jwtService.verify(jwtToken);
+			if (user.id != request.userId)
+				throw new RpcException("Error User connecté");
 			const data = {
 				id: userId,
 				firstName: undefined,
 				lastName: undefined,
 				email: undefined,
 			}
-			const user = await this.userService.findUser(data, {})
-			if (!user) {
+			const result = await this.userService.findUser(data, {})
+			if (!result) {
 				throw new RpcException("User does not exist");
 			}
-			const hotel = await this.appService.create(request as any);
+			const hotel = await this.hotelService.create(request as any);
 			return {hotel};
 		} catch (e) {
 			throw new RpcException(e);

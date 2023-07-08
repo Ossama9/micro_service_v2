@@ -17,7 +17,9 @@ import {status as RpcStatus} from '@grpc/grpc-js';
 @Controller()
 @AuthServiceControllerMethods()
 export class AppController implements AuthServiceController {
-	constructor(private readonly refreshTokenService: RefreshTokenService, private readonly userService: UserService, private jwtService: JwtService,
+	constructor(private readonly refreshTokenService: RefreshTokenService,
+				private readonly userService: UserService,
+				private jwtService: JwtService,
 	) {
 
 	}
