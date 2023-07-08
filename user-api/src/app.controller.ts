@@ -3,6 +3,8 @@ import {AppService} from './app.service';
 import {GrpcMethod} from '@nestjs/microservices';
 import {Metadata} from '@grpc/grpc-js';
 import {
+	CheckPasswordRequest,
+	CheckPasswordResponse, CheckPasswordResponse_STATUS,
 	DeleteRequest,
 	DeleteResponse,
 	FindRequest,
@@ -59,8 +61,36 @@ export class AppController implements UserServiceController {
 		return {user: user as any};
 	}
 
+	async checkPassword(request: CheckPasswordRequest): Promise<CheckPasswordResponse>{
+		try {
+			const {user, match} = await this.appService.checkPassword(
+				request.email,
+				request.password,
+			);
+
+			if (!user) {
+				return {
+					status: CheckPasswordResponse_STATUS.NOT_FOUND,
+					user: undefined,
+				};
+			}
+
+			if (match) {
+				return {
+					user: user as any,
+					status: CheckPasswordResponse_STATUS.OK,
+				};
+			}
+
+			return {
+				status: CheckPasswordResponse_STATUS.WRONG_PASSWORD,
+				user: undefined,
+			};
+		} catch (error) {
+			throw new RpcException(error)
+		}
+	}
 	async updateUser(request: UpdateRequest): Promise<UpdateResponse> {
-		console.log("request",request)
 		const userId = +request?.id
 		const user = await this.appService.update({
 			where: {

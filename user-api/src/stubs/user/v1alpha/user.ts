@@ -91,10 +91,30 @@ export interface GetResponse {
   users?: User[];
 }
 
+export interface CheckPasswordRequest {
+  email?: string;
+  password?: string;
+}
+
+export interface CheckPasswordResponse {
+  status?: CheckPasswordResponse_STATUS;
+  user?: User;
+}
+
+export enum CheckPasswordResponse_STATUS {
+  OK = 0,
+  WRONG_PASSWORD = 1,
+  NOT_FOUND = 2,
+  INTERNAL = 3,
+  UNRECOGNIZED = -1,
+}
+
 export const USER_V1ALPHA_PACKAGE_NAME = "user.v1alpha";
 
 export interface UserServiceClient {
   find(request: FindRequest, metadata?: Metadata): Observable<FindResponse>;
+
+  checkPassword(request: CheckPasswordRequest, metadata?: Metadata): Observable<CheckPasswordResponse>;
 
   get(request: GetRequest, metadata?: Metadata): Observable<GetResponse>;
 
@@ -111,6 +131,11 @@ export interface UserServiceClient {
 
 export interface UserServiceController {
   find(request: FindRequest, metadata?: Metadata): Promise<FindResponse> | Observable<FindResponse> | FindResponse;
+
+  checkPassword(
+    request: CheckPasswordRequest,
+    metadata?: Metadata,
+  ): Promise<CheckPasswordResponse> | Observable<CheckPasswordResponse> | CheckPasswordResponse;
 
   get(request: GetRequest, metadata?: Metadata): Promise<GetResponse> | Observable<GetResponse> | GetResponse;
 
@@ -144,6 +169,7 @@ export function UserServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = [
       "find",
+      "checkPassword",
       "get",
       "registerUser",
       "updateUser",
