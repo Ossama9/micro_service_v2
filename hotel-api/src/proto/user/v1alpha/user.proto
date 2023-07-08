@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+package user.v1alpha;
+
+import "google/protobuf/timestamp.proto";
+
+service UserService {
+  rpc Get (GetRequest) returns (GetResponse);
+  rpc RegisterUser(RegisterRequest) returns (RegisterResponse);
+  rpc UpdateUser(UpdateRequest) returns (UpdateResponse);
+  rpc DeleteUser(DeleteRequest) returns (DeleteResponse);
+  rpc MakeMerchant(MakeMerchantRequest) returns (MakeMerchantResponse);
+  rpc MakeAdmin(MakeAdminRequest) returns (MakeAdminResponse);
+}
+
+message User {
+  string id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string email = 4;
+
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+
+  UserRole role = 7;
+}
+
+enum UserRole {
+  BASIC = 0;
+  MERCHANT = 1;
+  ADMIN = 2;
+}
+
+message RegisterRequest {
+  string password = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string email = 4;
+}
+
+message RegisterResponse {
+  User user = 1;
+}
+
+message UpdateRequest {
+  string id = 1;
+  string password = 2;
+  string first_name = 3;
+  string last_name = 4;
+  string email = 5;
+}
+
+message UpdateResponse {
+  User user = 1;
+}
+
+message DeleteRequest {
+  string id = 1;
+}
+
+message DeleteResponse {
+  User user = 1;
+}
+
+message FindRequest {
+  string id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string email = 4;
+}
+message FindResponse {
+  repeated User user = 1;
+}
+
+message MakeMerchantRequest {
+  string id = 1;
+}
+message MakeMerchantResponse {
+  User user = 1;
+}
+
+message MakeAdminRequest {
+  string id = 1;
+  string email = 2;
+}
+message MakeAdminResponse {
+  User user = 1;
+}
+
+message GetRequest {
+  string email = 1;
+  int32 id = 2;
+}
+
+message GetResponse {
+  repeated User users = 1;
+}
