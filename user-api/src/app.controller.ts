@@ -18,13 +18,24 @@ import {
 	User, UserServiceController,
 	UserServiceControllerMethods
 } from "./stubs/user/v1alpha/user";
+import { Payload, RpcException} from '@nestjs/microservices';
 
 @Controller()
 @UserServiceControllerMethods()
 export class AppController implements UserServiceController {
 	constructor(private readonly appService: AppService) {
 	}
+	async find(
+		@Payload() request: FindRequest
+	): Promise<FindResponse> {
+			Object.keys(request).forEach((key) => request[key] === '' && delete request[key]);
+			const where = {
+				...request,
+				id: request.id ? +request.id : undefined,
+			};
+			return {user: (await this.appService.users({where})) as any};
 
+	}
 	async get(request: GetRequest, metadata?: Metadata): Promise<GetResponse> {
 		let user: User;
 		let users: User[] = [];

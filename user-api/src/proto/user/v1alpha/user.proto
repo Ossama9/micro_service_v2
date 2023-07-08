@@ -5,6 +5,7 @@ package user.v1alpha;
 import "google/protobuf/timestamp.proto";
 
 service UserService {
+  rpc Find(FindRequest) returns (FindResponse);
   rpc Get (GetRequest) returns (GetResponse);
   rpc RegisterUser(RegisterRequest) returns (RegisterResponse);
   rpc UpdateUser(UpdateRequest) returns (UpdateResponse);

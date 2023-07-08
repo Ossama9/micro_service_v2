@@ -32,6 +32,22 @@ export class AppService {
 		}) as any;
 	}
 
+	async users(params: {
+		skip?: number;
+		take?: number;
+		cursor?: Prisma.UserWhereUniqueInput;
+		where?: Prisma.UserWhereInput;
+		orderBy?: Prisma.UserOrderByWithRelationInput;
+	}): Promise<User[]> {
+		const {skip, take, cursor, where, orderBy} = params;
+		return this.prisma.user.findMany({
+			skip,
+			take,
+			cursor,
+			where,
+			orderBy,
+		}) as any;
+	}
 	async update(params: {
 		where: Prisma.UserWhereUniqueInput;
 		data: Prisma.UserUpdateInput;
@@ -47,6 +63,6 @@ export class AppService {
 		return this.prisma.user.delete({
 			where: {id},
 		}) as any;
-
 	}
+
 }

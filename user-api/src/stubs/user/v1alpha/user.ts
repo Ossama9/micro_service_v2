@@ -94,6 +94,8 @@ export interface GetResponse {
 export const USER_V1ALPHA_PACKAGE_NAME = "user.v1alpha";
 
 export interface UserServiceClient {
+  find(request: FindRequest, metadata?: Metadata): Observable<FindResponse>;
+
   get(request: GetRequest, metadata?: Metadata): Observable<GetResponse>;
 
   registerUser(request: RegisterRequest, metadata?: Metadata): Observable<RegisterResponse>;
@@ -108,6 +110,8 @@ export interface UserServiceClient {
 }
 
 export interface UserServiceController {
+  find(request: FindRequest, metadata?: Metadata): Promise<FindResponse> | Observable<FindResponse> | FindResponse;
+
   get(request: GetRequest, metadata?: Metadata): Promise<GetResponse> | Observable<GetResponse> | GetResponse;
 
   registerUser(
@@ -138,7 +142,15 @@ export interface UserServiceController {
 
 export function UserServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["get", "registerUser", "updateUser", "deleteUser", "makeMerchant", "makeAdmin"];
+    const grpcMethods: string[] = [
+      "find",
+      "get",
+      "registerUser",
+      "updateUser",
+      "deleteUser",
+      "makeMerchant",
+      "makeAdmin",
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("UserService", method)(constructor.prototype[method], method, descriptor);
