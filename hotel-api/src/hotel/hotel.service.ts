@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client';
 import {PrismaService} from "../prisma.service";
 
 @Injectable()
-export class AppService {
+export class HotelService {
 	constructor(private prisma: PrismaService) {}
 	create(data: Prisma.HotelCreateInput): Promise<Hotel> {
 		return this.prisma.hotel.create({ data }) as any;
