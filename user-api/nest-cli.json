@@ -6,6 +6,7 @@
     "assets": [
       "**/*.proto"
     ],
-    "watchAssets": true
+    "watchAssets": true,
+    "deleteOutDir": true
   }
 }

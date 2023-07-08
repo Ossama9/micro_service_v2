@@ -6,6 +6,7 @@ import "google/protobuf/timestamp.proto";
 
 service UserService {
   rpc Find(FindRequest) returns (FindResponse);
+  rpc CheckPassword(CheckPasswordRequest) returns (CheckPasswordResponse);
   rpc Get (GetRequest) returns (GetResponse);
   rpc RegisterUser(RegisterRequest) returns (RegisterResponse);
   rpc UpdateUser(UpdateRequest) returns (UpdateResponse);
@@ -95,4 +96,20 @@ message GetRequest {
 
 message GetResponse {
   repeated User users = 1;
+}
+
+message CheckPasswordRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message CheckPasswordResponse {
+  enum STATUS {
+    OK = 0;
+    WRONG_PASSWORD = 1;
+    NOT_FOUND = 2;
+    INTERNAL = 3;
+  }
+  STATUS status = 1;
+  User user = 2;
 }
