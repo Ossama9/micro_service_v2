@@ -25,9 +25,7 @@ import { Payload, RpcException} from '@nestjs/microservices';
 export class AppController implements UserServiceController {
 	constructor(private readonly appService: AppService) {
 	}
-	async find(
-		@Payload() request: FindRequest
-	): Promise<FindResponse> {
+	async find( @Payload() request: FindRequest	): Promise<FindResponse> {
 			Object.keys(request).forEach((key) => request[key] === '' && delete request[key]);
 			const where = {
 				...request,

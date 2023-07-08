@@ -26,18 +26,18 @@ import {validate, ValidatorOptions} from 'class-validator';
 import {plainToInstance} from "class-transformer";
 import {status as RpcStatus} from '@grpc/grpc-js';
 import {Prisma} from '@prisma/client';
+import {UserService} from "./user/user.service";
 
 @Controller()
 @HotelCRUDServiceControllerMethods()
 export class AppController implements HotelCRUDServiceController {
 
-	constructor(private readonly appService: AppService) {
+	constructor(private readonly appService: AppService, private readonly userService: UserService) {
 	}
 
 	async get(request: GetRequest, metadata?: Metadata): Promise<GetResponse> {
 		let hotel: Hotel;
 		let hotels: Hotel[] = [];
-
 		if (request.id) {
 			const hotel = await this.appService.findById(request.id);
 			return {hotels: [hotel] as any};
@@ -90,12 +90,23 @@ export class AppController implements HotelCRUDServiceController {
 	): Promise<ApproveHotelResponse> {
 		const status = STATUS[1]
 		let hotel
+
 		try {
 			hotel = await this.appService.update(request.id, {status} as any);
 		} catch (e) {
 			throw new RpcException('Hotel does exist');
 		}
-
+		const userId = hotel.userId
+		try {
+			const user = await this.userService.makeMerchant({
+				id: userId
+			});
+			if (!user){
+				throw new RpcException('Error User does exist');
+			}
+		} catch (e) {
+			throw new RpcException('Hotel does exist');
+		}
 		return {hotel};
 	}
 
@@ -103,8 +114,18 @@ export class AppController implements HotelCRUDServiceController {
 	async add(request: AddRequest): Promise<AddResponse> {
 		try {
 			const dto: CreateHotelDto = await this.validateDto(request, CreateHotelDto);
+			const userId = request.userId
+			const data = {
+				id: userId,
+				firstName: undefined,
+				lastName: undefined,
+				email: undefined,
+			}
+			const user = await this.userService.findUser(data, {})
+			if (!user) {
+				throw new RpcException("User does not exist");
+			}
 			const hotel = await this.appService.create(request as any);
-
 			return {hotel};
 		} catch (e) {
 			throw new RpcException(e);
