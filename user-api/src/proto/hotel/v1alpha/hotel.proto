@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+package hotel.v1alpha;
+
+enum STATUS {
+  PENDING = 0;
+  APPROVED = 1;
+  REJECTED = 2;
+}
+
+message Hotel {
+  string name = 1;
+  int32 id = 2;
+  string city = 3;
+  string address = 4;
+  string userId = 5;
+  STATUS status = 6;
+}
+
+service HotelCRUDService {
+  rpc Get (GetRequest) returns (GetResponse);
+  rpc Add (AddRequest) returns (AddResponse);
+  rpc Update (UpdateRequest) returns (UpdateResponse);
+  rpc Delete (DeleteRequest) returns (DeleteResponse);
+  rpc PendingHotel (PendingHotelRequest) returns (PendingHotelResponse);
+  rpc ApproveHotel (ApproveHotelRequest) returns (ApproveHotelResponse);
+}
+
+message GetRequest {
+  int32 id = 1;
+}
+
+message GetResponse {
+  repeated Hotel hotels = 1;
+}
+
+message AddRequest {
+  string name = 1;
+  string city = 2;
+  string address = 3;
+  string userId = 4;
+}
+
+message AddResponse {
+  Hotel hotel = 1;
+}
+
+message UpdateRequest {
+  int32 id = 1;
+  string name = 2;
+  string city = 3;
+  string address = 4;
+  string userId = 5;
+  STATUS status = 6;
+}
+
+message UpdateResponse {
+  Hotel hotel = 1;
+}
+
+message DeleteRequest {
+  int32 id = 1;
+}
+
+message DeleteResponse {
+  Hotel hotel = 1;
+}
+
+
+message PendingHotelRequest{
+  int32 id = 1;
+}
+message PendingHotelResponse{
+  repeated Hotel hotels = 1;
+}
+
+message ApproveHotelRequest{
+  int32 id = 1;
+}
+
+message ApproveHotelResponse{
+  Hotel hotel = 1;
+}

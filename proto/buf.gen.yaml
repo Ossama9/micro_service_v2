@@ -8,3 +8,9 @@ plugins:
       - addGrpcMetadata=true
       - nestJs=true
       - useOptionals=all
+  - plugin: buf.build/community/stephenh-ts-proto
+    out: ../hotel-api/src/stubs
+    opt:
+      - addGrpcMetadata=true
+      - nestJs=true
+      - useOptionals=all
