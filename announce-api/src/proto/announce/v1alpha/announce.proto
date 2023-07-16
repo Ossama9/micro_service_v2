@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package announce.v1alpha;
+
+message Announce {
+  int32 id = 1;
+  string name = 2;
+  int32 price = 3;
+  string hotel_id = 4;
+}
+
+service AnnounceCRUDService {
+  rpc Get (GetRequest) returns (GetResponse);
+  rpc Add (AddRequest) returns (AddResponse);
+  rpc Update (UpdateRequest) returns (UpdateResponse);
+  rpc Delete (DeleteRequest) returns (DeleteResponse);
+}
+
+message GetRequest {
+  int32 id = 1;
+}
+
+message GetResponse {
+  repeated Announce announces = 1;
+}
+
+message AddRequest {
+  string name = 1;
+  int32 price = 2;
+  string hotel_id = 3;
+}
+
+message AddResponse {
+  Announce announce = 1;
+}
+
+message UpdateRequest {
+  int32 id = 1;
+  string name = 2;
+  int32 price = 3;
+  string hotel_id = 4;
+}
+
+message UpdateResponse {
+  Announce announce = 1;
+}
+
+message DeleteRequest {
+  int32 id = 1;
+}
+
+message DeleteResponse {
+  Announce announce = 1;
+}
+

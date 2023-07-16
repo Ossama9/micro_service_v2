@@ -41,7 +41,6 @@ export class GrpcAuthGuard implements CanActivate {
 			}
 			const hotelId = +context.getArgs()[0]?.id
 			if (hotelId) {
-				console.log("hotelID",hotelId)
 				const hotel = await this.hotelService.findById(hotelId)
 				if (!hotel){
 					throw new Error('Error get Hotel from request');
