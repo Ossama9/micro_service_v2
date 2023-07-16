@@ -13,72 +13,72 @@ export enum STATUS {
 }
 
 export interface Hotel {
-  name?: string;
-  id?: number;
-  city?: string;
-  address?: string;
-  userId?: string;
-  status?: STATUS;
+  name?: string | undefined;
+  id?: number | undefined;
+  city?: string | undefined;
+  address?: string | undefined;
+  userId?: string | undefined;
+  status?: STATUS | undefined;
 }
 
 export interface GetRequest {
-  id?: number;
+  id?: number | undefined;
 }
 
 export interface GetResponse {
-  hotels?: Hotel[];
+  hotels?: Hotel[] | undefined;
 }
 
 export interface AddRequest {
-  name?: string;
-  city?: string;
-  address?: string;
-  userId?: string;
+  name?: string | undefined;
+  city?: string | undefined;
+  address?: string | undefined;
+  userId?: string | undefined;
 }
 
 export interface AddResponse {
-  hotel?: Hotel;
+  hotel?: Hotel | undefined;
 }
 
 export interface UpdateRequest {
-  id?: number;
-  name?: string;
-  city?: string;
-  address?: string;
-  status?: STATUS;
+  id?: number | undefined;
+  name?: string | undefined;
+  city?: string | undefined;
+  address?: string | undefined;
+  status?: STATUS | undefined;
 }
 
 export interface UpdateResponse {
-  hotel?: Hotel;
+  hotel?: Hotel | undefined;
 }
 
 export interface DeleteRequest {
-  id?: number;
+  id?: number | undefined;
 }
 
 export interface DeleteResponse {
-  hotel?: Hotel;
+  hotel?: Hotel | undefined;
 }
 
 export interface PendingHotelRequest {
-  id?: number;
+  id?: number | undefined;
 }
 
 export interface PendingHotelResponse {
-  hotels?: Hotel[];
+  hotels?: Hotel[] | undefined;
 }
 
 export interface ApproveHotelRequest {
-  id?: number;
+  id?: number | undefined;
 }
 
 export interface ApproveHotelResponse {
-  hotel?: Hotel;
+  hotel?: Hotel | undefined;
 }
 
 export const HOTEL_V1ALPHA_PACKAGE_NAME = "hotel.v1alpha";
 
-export interface HotelCRUDServiceClient {
+export interface HotelServiceClient {
   get(request: GetRequest, metadata?: Metadata): Observable<GetResponse>;
 
   add(request: AddRequest, metadata?: Metadata): Observable<AddResponse>;
@@ -92,7 +92,7 @@ export interface HotelCRUDServiceClient {
   approveHotel(request: ApproveHotelRequest, metadata?: Metadata): Observable<ApproveHotelResponse>;
 }
 
-export interface HotelCRUDServiceController {
+export interface HotelServiceController {
   get(request: GetRequest, metadata?: Metadata): Promise<GetResponse> | Observable<GetResponse> | GetResponse;
 
   add(request: AddRequest, metadata?: Metadata): Promise<AddResponse> | Observable<AddResponse> | AddResponse;
@@ -118,19 +118,19 @@ export interface HotelCRUDServiceController {
   ): Promise<ApproveHotelResponse> | Observable<ApproveHotelResponse> | ApproveHotelResponse;
 }
 
-export function HotelCRUDServiceControllerMethods() {
+export function HotelServiceControllerMethods() {
   return function (constructor: Function) {
     const grpcMethods: string[] = ["get", "add", "update", "delete", "pendingHotel", "approveHotel"];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcMethod("HotelCRUDService", method)(constructor.prototype[method], method, descriptor);
+      GrpcMethod("HotelService", method)(constructor.prototype[method], method, descriptor);
     }
     const grpcStreamMethods: string[] = [];
     for (const method of grpcStreamMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
-      GrpcStreamMethod("HotelCRUDService", method)(constructor.prototype[method], method, descriptor);
+      GrpcStreamMethod("HotelService", method)(constructor.prototype[method], method, descriptor);
     }
   };
 }
 
-export const HOTEL_CR_UD_SERVICE_NAME = "HotelCRUDService";
+export const HOTEL_SERVICE_NAME = "HotelService";

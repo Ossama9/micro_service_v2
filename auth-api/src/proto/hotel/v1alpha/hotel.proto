@@ -17,7 +17,7 @@ message Hotel {
   STATUS status = 6;
 }
 
-service HotelCRUDService {
+service HotelService {
   rpc Get (GetRequest) returns (GetResponse);
   rpc Add (AddRequest) returns (AddResponse);
   rpc Update (UpdateRequest) returns (UpdateResponse);

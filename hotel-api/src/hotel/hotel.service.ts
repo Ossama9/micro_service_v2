@@ -14,10 +14,12 @@ export class HotelService {
 		return this.prisma.hotel.findMany() as any;
 	}
 
-	findById(id: number): Promise<Hotel> {
-		return this.prisma.hotel.findUnique({
-			where: { id },
-		}) as any;
+	async findById(id: number): Promise<Hotel> {
+		return this.prisma.hotel.findUnique({where: { id }}) as any
+		// console.log("hotel from databbase",hotel)
+		// return hotel
+		// return "aeazeaz" as any
+		// as any;
 	}
 	pendingHotel(): Promise<Hotel[]> {
 		return this.prisma.hotel.findMany({
